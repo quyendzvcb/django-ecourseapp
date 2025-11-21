@@ -1,7 +1,53 @@
-% extends 'admin/base_site.html' %}
+{% extends 'admin/base_site.html' %}
 
 {% block content %}
 
-<h1>THONG KE SO KHOA HOC THEO </h1>
+<h1>THONG KE SO KHOA HOC THEO DANH MUC </h1>
+
+<ul>
+    {% for s in stats %}
+    <li><strong>{{ s.name }}</strong>: {{ s.count }}</li>
+    {%endfor%}
+</ul>
+
+<div style="width: 60%">
+  <canvas id="myChart"></canvas>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    data = [];
+    label = [];
+
+    {% for s in stats %}
+     data.push({{ s.count }})
+     label.push('{{ s.name }}')
+    {% endfor %}
+
+    window.onload = function() {
+        const ctx = document.getElementById('myChart');
+
+          new Chart(ctx, {
+            type: 'bar',
+            data: {
+              labels: label,
+              datasets: [{
+                label: '# Đếm số khóa học thống kê theo mục',
+                data: data,
+                borderWidth: 1,
+                backgroundColor: ['red', 'green', 'blue', 'gold', 'brown']
+              }]
+            },
+            options: {
+              scales: {
+                y: {
+                  beginAtZero: true
+                }
+              }
+            }
+          });
+            }
+</script>
 
 {% endblock %}

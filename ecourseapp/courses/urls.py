@@ -1,6 +1,16 @@
-from django.urls import path
+from django.urls import path, include
 from . import views
+from rest_framework.routers import DefaultRouter
+from courses import views
+
+r = DefaultRouter()
+r.register('categories', views.CategoryViewSet, basename='category')
+r.register('courses', views.CourseViewSet, basename='course')
+r.register('lessons', views.LessonViewSet, basename='lesson')
+r.register('users', views.UserViewSet, basename='user')
+
+
 
 urlpatterns = [
-    path('', views.index, name='index'),
+    path('', include(r.urls)),
 ]

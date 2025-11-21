@@ -31,6 +31,15 @@ ALLOWED_HOSTS = []
 
 # Application definition
 
+
+import cloudinary
+
+cloudinary.config(
+    cloud_name="dqbheiddg",
+    api_key="434142617659482",
+    api_secret="PIm-pf4A7oFGj0WO4Eu8oCuDtW8"
+)
+
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -43,7 +52,17 @@ INSTALLED_APPS = [
     'ckeditor_uploader',
     'debug_toolbar',
     'rest_framework',
+    'drf_yasg',
+    'oauth2_provider',
 ]
+
+REST_FRAMEWORK = {
+    #     'DEFAULT_PAGINATION_CLASS':'rest_framework.pagination.PageNumberPagination',
+    #     'PAGE_SIZE': 6
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'oauth2_provider.contrib.rest_framework.OAuth2Authentication',
+    )
+}
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -93,10 +112,10 @@ INTERNAL_IPS = [
 ]
 
 import pymysql
+
 pymysql.install_as_MySQLdb()
 
 AUTH_USER_MODEL = "courses.User"
-
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
@@ -136,3 +155,6 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+CLIENT_ID = 'jXd9rpNVuf3Zp0gl1r7uT3PKZczXohKROsJZxI1p'
+CLIENT_SECRET = 'RM7zC3t7jOwYvgoDT2hJ9qxSQhVK8TRKj2nRCLdStkQcFb4rckkTiGKIEfzWrdxowl1drHQzZAZkAA33avGgl2sEiLydMUh5GcyzPXynkKshppuBwKgHZXgGim9DAMnI'

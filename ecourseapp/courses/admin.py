@@ -4,7 +4,7 @@ from django.db.models import Count
 from django.http import request
 from django.template.response import TemplateResponse
 from django.utils.safestring import mark_safe
-from .models import Category, Course, Lesson, Tag
+from courses.models import Category, Course, Lesson, Tag, Comment, Like
 from ckeditor_uploader.widgets import CKEditorUploadingWidget
 from django.urls import path
 
@@ -24,14 +24,14 @@ class CourseForm(forms.ModelForm):
         fields = '__all__'
 
 
-class TagInlineAdmin(admin.StackedInline):
-    model = Course.tags.through
+# class TagInlineAdmin(admin.StackedInline):
+#     model = Course.tags.through
 
 
 class CourseAdmin(admin.ModelAdmin):
     list_display = ['pk', 'subject', 'created_date', 'updated_date', 'category', 'active']
     readonly_fields = ['img']
-    inlines = [TagInlineAdmin]
+    # inlines = [TagInlineAdmin]
     form = CourseForm
 
     def img(self, course):
@@ -46,16 +46,17 @@ class CourseAdmin(admin.ModelAdmin):
             'all': ('/static/css/style.css',)
         }
 
+
 class MyAdminSite(admin.AdminSite):
     site_header = 'eCourses App'
 
     def get_urls(self):
-        return [path('/stats-view', self.stats_view)] + super().get_urls()
+        return [path('stats-view/', self.stats_view)] + super().get_urls()
 
     def stats_view(self, request):
         stats = Category.objects.annotate(count=Count('course')).values('id','name', 'count')
 
-        return TemplateResponse(request, 'stats/stats.html', {'stats': stats})
+        return TemplateResponse(request, 'admin/stats.html', {'stats': stats})
 
 admin_site = MyAdminSite()
 
@@ -64,4 +65,5 @@ admin_site.register(Category, CategoryAdmin)
 admin_site.register(Course, CourseAdmin)
 admin_site.register(Lesson)
 admin_site.register(Tag)
+admin_site.register(Comment)
 
