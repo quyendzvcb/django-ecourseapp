@@ -1,9 +1,10 @@
 from django.contrib.auth import get_permission_codename
+from django.db.models.functions import Replace
 from rest_framework import viewsets, generics, permissions, status, parsers
 from rest_framework.response import Response
 from rest_framework.decorators import action
-from courses import serializers, paginators
-from courses.models import Category, Course, Lesson, User
+from courses import serializers, paginators, perms
+from courses.models import Category, Course, Lesson, User, Comment, Like
 
 
 class CategoryViewSet(viewsets.ViewSet, generics.ListAPIView):
@@ -53,6 +54,12 @@ class LessonViewSet(viewsets.ViewSet, generics.RetrieveAPIView):
 
         return [permissions.AllowAny(), ]
 
+    def get_serializer_class(self):
+        if self.request.user.is_authenticated:
+            return serializers.AuthenticatedLessonDetailsSerializer
+
+        return serializers.LessonDetailsSerializer
+
 
     @action(methods=['get'], url_path='comments', detail=True)
     def get_comments(self, request, pk):
@@ -83,6 +90,17 @@ class LessonViewSet(viewsets.ViewSet, generics.RetrieveAPIView):
 
         return Response(serializers.CommentSerializer(c).data, status=status.HTTP_201_CREATED)
 
+    @action(methods=['post'], url_path='like', detail=True)
+    def like(self, request, pk):
+        li, created = Like.objects.get_or_create(user=request.user, lesson=self.get_object())
+
+        if not created:
+            li.active =  not li.active
+            li.save()
+
+        return Response(serializers.AuthenticatedLessonDetailsSerializer(self.get_object()).data, status=status.HTTP_201_CREATED)
+
+
 
 class UserViewSet(viewsets.ViewSet, generics.CreateAPIView):
     queryset = User.objects.filter(is_active=True)
@@ -103,4 +121,10 @@ class UserViewSet(viewsets.ViewSet, generics.CreateAPIView):
                 setattr(user, k, v)
             user.save()
 
-        return Response(serializers.UserSerializer(user).data, status=status.HTTP_200_OK)
+        return Response(serializers.UserSerializer(user).data)
+
+
+class CommentViewSet(viewsets.ViewSet, generics.DestroyAPIView, generics.UpdateAPIView):
+    queryset = Comment.objects.all()
+    serializer_class = serializers.CommentSerializer
+    permission_classes = [perms.CommentOwner]
